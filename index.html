@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<head>
+    <title>Autodesk Sunburst</title>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+
+</head>
+
+<style>
+
+
+body {
+    font-family: "Raleway", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    
+}
+
+text {
+    pointer-events: none;  /* Make text "non selectable" */
+}
+
+label {
+
+    font-size: 15px;
+}
+
+#tooltip_svg_01 {
+    position: absolute;
+    width: 200px;
+    height: auto;
+    padding: 10px;
+    background-color: white;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+    -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+
+#tooltip_svg_01 p {
+    margin: 0;
+    font-family: sans-serif;
+    font-size: 16px;
+    line-height: 20px;
+}
+
+
+h3,
+h4 {
+  font-size: 0.9em;
+  color: #555;
+  margin: 0;
+}
+
+h4 {
+  font-weight: normal;
+}
+
+.container1 {
+  height: 50px;
+  width: 500px;
+  position: absolute;
+  top: 1%;
+  left: 1%;
+ // border: 3px solid green;
+}
+
+.container2 {
+  height: 50px;
+  width: 500px;
+  position: absolute;
+  top: 7.5%;
+  left: 1%;
+ // border: 3px solid green;
+
+}
+
+.container3 {
+  height: 50px;
+  width: 500px;
+  position: absolute;
+  top: 14%;
+  left: 1%;
+  //border: 3px solid green;
+
+}
+
+.container4 {
+  height: 50px;
+  width: 500px;
+  position: absolute;
+  top: 20%;
+  left: 1%;
+  //border: 3px solid green;
+
+}
+
+.center {
+  margin: 0;
+  position: relative;
+  top: 10px;
+
+}
+
+</style>
+
+<div class="container1">
+    <div class="center">
+    <h4>Data source</h4>
+      <label id="first"><input type="radio" name="Select"  unchecked> Outcomes</label>
+      <label id="second"><input type="radio" name="Select"  checked> Technical Sales Offering</label>
+    </div>
+</div>
+<div class="container2">
+    <div class="center">
+        <h4>Sales stage</h4>
+        <label id="stage 1"><input type="checkbox" name="sales stage"  checked> Stage 1</label>
+        <label id="stage 2"><input type="checkbox" name="sales stage"  checked> Stage 2</label>
+        <label id="stage 3"><input type="checkbox" name="sales stage"  checked> Stage 3</label>
+        <label id="stage 4"><input type="checkbox" name="sales stage"  checked> Stage 4</label>
+        <label id="stage 5"><input type="checkbox" name="sales stage"  checked> Stage 5</label>
+    </div>
+</div>
+<div class="container3">
+    <div class="center">
+        <h4>Who is adressed to</h4>
+        <label id="sales"><input type="checkbox" name="SalesOrTech"  checked> Sales</label>
+        <label id="tech"><input type="checkbox" name="SalesOrTech"  checked> Tech</label>
+
+    </div>
+</div>
+<div class="container4">
+    <div class="center">
+        <h4>Language</h4>
+        <label id="english"><input type="radio" name="language"  checked>English</label>
+        <label id="german"><input type="radio" name="language"  unchecked>German</label>
+        <label id="french"><input type="radio" name="language"  unchecked>French</label>
+        <label id="italian"><input type="radio" name="language"  unchecked>Italian</label>
+        <label id="spanish"><input type="radio" name="language"  unchecked>Spanish</label>
+        <label id="spanish"><input type="radio" name="language"  unchecked>Polish</label>
+    </div>
+</div>
+
+<body>
+
+<svg></svg>
+
+
+
+<div class="tooltip" ></div>
+    <div class="tip-header">
+        <h3></h3>
+        <h4></h4>       
+    </div>
+    <div class="tip-header">
+        
+    </div>
+<div id="tooltip_svg_01" style="opacity:0">
+    <p><span id="value_tt_01">None</span></p>
+    <p><a id="link_tt_01">None</a></p>
+</div>
+</body>
+
+<script>
+
+   // d3.select("stage 1").on("click", console.log("dupa"));
+   // document.getElementById("stage 1").addEventListener("cli,  showOutcomes);    
+
+
+    var files = ["https://dl.dropboxusercontent.com/s/sdyp1sazcqb4hqd/sample2.json?dl=0", 
+            "https://raw.githubusercontent.com/AndrzejSamsonowicz/OutcomeWheel/master/outcome%20wheel2.json"];
+
+    var width = window.innerWidth-50; 
+    var height = window.innerHeight-75;
+    var radius = Math.min(width, height) / 6; 
+    var color = d3.scaleOrdinal(d3.schemeBlues[3]);
+    const format = d3.format(',d');
+
+    var g = d3.select('svg')
+        .attr('width', width)
+        .attr('height', height)
+        .append('g')
+        .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')');
+
+
+
+
+    Promise.all(files.map(url => d3.json(url))).then(function(nodeData) {
+        
+        Tss = nodeData[0];
+        Outcomes = nodeData[1];
+        var showNodes = JSON.parse(JSON.stringify(nodeData[0]));
+        
+        function filtr(x) {
+            const chuj = partition(x);
+            chuj.each(function(d){return d})
+    }
+        console.log(filtr(showNodes))
+
+
+        drawSunburst(Tss);
+        
+    });
+
+    var partition = data => {
+
+        const root = d3.hierarchy(data)
+                .sum(function(d){return d.size;})
+                .sort((a, b) => b.value - a.value)
+ 
+
+        return d3.partition()
+                .size([2 * Math.PI, root.height + 1])
+                (root);         
+
+                
+        };
+
+
+    function drawSunburst(data) {
+
+        const root = partition(data);
+
+        root.each(function(d){return d.current = d;});  
+
+        
+        
+
+        var arc = d3.arc()
+            .startAngle(function(d){return d.x0})
+            .endAngle(function(d){return d.x1})
+            .padAngle(d => Math.min((d.x1 - d.x0) / 2, 0.005))
+            .padRadius(radius * 1.5)
+            .innerRadius(d => d.y0 * radius)
+            .outerRadius(d => Math.max(d.y0 * radius, d.y1 * radius - 1));
+          
+
+
+        slice = g
+            .selectAll('g.node')
+            .data(root.descendants(), function(d) {return d.data.name;})
+            //.filter(function(d){if(d.data.name == "Stage 1"){return d.data.name}}),
+
+
+ 
+
+        slice.exit().remove();
+        slice.selectAll('path').remove();
+        slice.selectAll('text').remove();
+
+     
+
+        newSlice = slice
+            .enter()
+            .append('g')
+            .attr("class", "node")
+            .merge(slice);
+
+ 
+
+        const path = newSlice 
+            .append('path')
+            .attr("display", function (d) {return d.depth ? null : "none"; })
+            .attr("d", arc)
+            .style('stroke', '#fff')
+            .attr("fill", function(d){
+                   while (d.depth > 1)
+
+                        d = d.parent;
+                 return color(d.data.name); 
+                })
+            .attr("fill-opacity", function(d){return arcVisible(d.current) ? (d.children ? 0.9 : 1) : 0.2})
+            .attr("d", d => arc(d.current));
+
+
+
+        const label = newSlice
+            .append("text")
+            .attr("transform", function(d) {
+                return "translate(" + arc.centroid(d) + ")rotate(" + computeTextRotation(d) + ")"; })
+            .attr("dx", "-35")
+            .attr("dy", ".5em")
+            .text(function(d) { return d.parent ? cutText(d.data.name) : "" })   
+            .attr("fill-opacity", function(d){return +labelVisible(d.current); });
+
+        const circle = newSlice
+                .append("circle")
+                .attr("transform", function(d) {
+               return "translate(" + arc.centroid(d) + ")rotate(" + computeTextRotation(d) + ")"; })
+                .attr("cx","-45")
+               .attr("cy",".2em")
+                .attr("r",6)
+                .style("fill","#303030")
+                .attr("fill-opacity", function(d){return +labelVisible(d.current); });
+            
+
+        path.filter(function(d){return d.children;})
+              .style("cursor", "pointer")
+              .on("click", clicked);  
+            
+
+
+        const parent = g.append("circle")
+                .datum(root)
+                .attr("r", radius)
+                .attr("fill", "none")
+                .attr("pointer-events", "all")
+                .on("click", clicked)
+                
+        
+       const img = g
+            .append("svg:image")
+            .attr("xlink:href", "https://raw.githubusercontent.com/AndrzejSamsonowicz/OutcomeWheel/master/Autodesk_Logo_A_only.svg")
+            .attr("width", 100)
+            .attr("height", 100)
+            .attr("x", -95)
+            .attr("y",-50)
+        
+        const t1 = g
+                .append("text")
+                .text('AEC EMEA TSS')
+                .attr('transform','translate('+-12+','+-30+')')
+                .attr("font-weight", 600)
+                .style("fill","rgb(79,109,182)")
+                .style("font-size", "16px");
+        const t2 = g
+                .append("text")
+                .text('Customer ')
+                .attr('transform','translate('+0+','+0+')')
+                .attr("font-weight", 600)
+                .style("fill","rgb(79,109,182)")
+                .style("font-size", "16px");
+        const t3 = g
+                .append("text")
+                .text('Outcomes VT')
+                .attr('transform','translate('+10+','+30+')')
+                .attr("font-weight", 600)
+                .style("fill","rgb(79,109,182)")
+                .style("font-size", "16px");    
+
+        
+        
+        function mouseover() {
+
+            const d = d3.select(this).data()[0];
+
+            d3.select("#tooltip_svg_01")
+                .style('left', `${d3.event.clientX + 15}px`)
+                .style('top', `${d3.event.clientY}px`)
+                .style('opacity', function(){return +labelVisible(d.current) ? 0.8 : 0;})
+                .style('visibility', function() { return +labelVisible(d.current) ? 'visible' : 'hidden';})
+            d3.select("#value_tt_01")
+                .text(d.data.name);
+            d3.select('#link_tt_01')
+                    .attr("href", d.data.link)
+                    .text(function() {if (d.data.link === null || d.data.link === 0.0) {return ""} else {return "link to document"};});
+        }
+  
+        function mouseout(){
+             d3.select("#tooltip_svg_01")
+    
+                .style("opacity", 0);
+          
+          } 
+
+        circle
+            .on('mouseover', mouseover)
+       //     .on('mousemove', mousemove)
+        g
+            .on('click', mouseout)
+  
+
+        function clicked(p) {
+                parent.datum(p.parent || root);
+
+                root.each(d => d.target = {
+                        x0: Math.max(0, Math.min(1, (d.x0 - p.x0) / (p.x1 - p.x0))) * 2 * Math.PI,
+                        x1: Math.max(0, Math.min(1, (d.x1 - p.x0) / (p.x1 - p.x0))) * 2 * Math.PI,
+                        y0: Math.max(0, d.y0 - p.depth),
+                        y1: Math.max(0, d.y1 - p.depth)
+                    });
+              
+                const t = g.transition().duration(1000);
+
+       
+
+              path.transition(t)
+                        .tween("data", d => {
+                            const i = d3.interpolate(d.current, d.target);
+                            return t => d.current = i(t);
+                        })
+                        .filter(function (d) {
+                            return +this.getAttribute("fill-opacity") || arcVisible(d.target);
+                        })
+                        .attr("fill-opacity", d => arcVisible(d.target) ? (d.children ? 0.8 : 1) : 0.2)
+                        .attrTween("d", d => () => arc(d.current));
+
+
+                label.filter(function (d) {
+                    return +this.getAttribute("fill-opacity") || labelVisible(d.target);
+                }).transition(t)
+                        .attr("fill-opacity", d => +labelVisible(d.target))
+                        .attrTween("transform", d => () => labelTransform(d.current));
+                circle.filter(function (d) {
+                    return +this.getAttribute("fill-opacity") || labelVisible(d.target);
+                }).transition(t)
+                        .attr("fill-opacity", d => +labelVisible(d.target))
+                        .attrTween("transform", d => () => labelTransform(d.current));
+
+    };
+
+    document.getElementById("first").addEventListener("click",  showOutcomes);    
+    document.getElementById("second").addEventListener("click",  showTss);   
+    
+
+    function showTss() {
+
+        location.reload(true);
+        drawSunburst(Tss);
+    
+        };
+
+    function showOutcomes() {
+
+     
+        drawSunburst(Outcomes);
+         
+
+    };
+
+    function labelTransform(d) {
+                const x = (d.x0 + d.x1) / 2 * 180 / Math.PI;
+                const y = (d.y0 + d.y1) / 2 * radius;
+                return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
+            }
+
+    }
+    function arcVisible(d) {
+        return d.y1 <= 3 && d.y0 >= 1 && d.x1 > d.x0;
+    }
+
+    function labelVisible(d) {
+        return d.y1 <= 3 && d.y0 >= 1 && (d.y1 - d.y0) * (d.x1 - d.x0) > 0.03;
+    }
+    
+    function computeTextRotation(d) {
+        var angle = (d.x0 + d.x1) / Math.PI * 90;
+
+        return (angle < 180) ? angle - 90 : angle + 90;  
+    }
+
+    function cutText(string) {
+        return string.length < 12 ? string : string.substring(0, 12) + '...';
+    }
+
+
+    
+
+
+
+</script>
